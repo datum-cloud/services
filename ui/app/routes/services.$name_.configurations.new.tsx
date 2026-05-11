@@ -149,6 +149,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       suggestedVersion,
     } satisfies LoaderData);
   } catch (e) {
+    console.error('[configurations/new loader]', e);
     return json({
       error: e instanceof Error ? e.message : String(e),
       configs: [],
