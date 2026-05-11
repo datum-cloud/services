@@ -24,7 +24,6 @@ test('new service wizard', async ({ page }) => {
   const nextBtn = page.getByRole('button', { name: /next/i });
   // Wait for the Next button to become enabled (form must be valid).
   await page.waitForFunction(() => {
-    const btn = document.querySelector('button[type="button"]');
     const allBtns = Array.from(document.querySelectorAll('button'));
     const nextBtn = allBtns.find(b => /next/i.test(b.textContent ?? ''));
     return nextBtn && !nextBtn.disabled;
