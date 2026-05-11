@@ -185,6 +185,8 @@ jobs:
             <!-- ui-demo-recording -->
             ## 🎬 UI Demo
 
+            Covers: consumer catalog → services list → Compute service detail → configurations tab → new service wizard (identity + MRT steps).
+
             ![Service Catalog Demo](https://raw.githubusercontent.com/${{ github.repository }}/ui-recordings/pr-${{ github.event.pull_request.number }}/demo.gif)
 
             > Recorded from ${{ github.sha }} · [Workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
