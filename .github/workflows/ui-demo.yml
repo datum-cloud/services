@@ -102,7 +102,9 @@ jobs:
         run: |
           SCENARIOS=$(cd ui && node e2e/resolve-scenarios.mjs)
           echo "Resolved: $SCENARIOS"
-          echo "json=$SCENARIOS" >> "$GITHUB_OUTPUT"
+          # Write to a file so later steps read it directly, avoiding
+          # ${{ }} expression substitution which mangles non-ASCII chars.
+          echo "$SCENARIOS" > /tmp/scenarios.json
 
       # ── Install ffmpeg ───────────────────────────────────────────────────
       - name: Install ffmpeg
@@ -115,7 +117,7 @@ jobs:
 
           # Write scenario lines to a file so subprocess stdin doesn't
           # steal bytes from the while-loop's pipe on each playwright run.
-          echo '${{ steps.scenarios.outputs.json }}' | jq -c '.[]' > /tmp/scenario-lines.txt
+          jq -c '.[]' /tmp/scenarios.json > /tmp/scenario-lines.txt
 
           while IFS= read -r scenario; do
             NAME=$(echo "$scenario" | jq -r '.name')
@@ -202,7 +204,7 @@ jobs:
             echo "## 🎬 UI Demo"
             echo ""
 
-            echo '${{ steps.scenarios.outputs.json }}' | jq -c '.[]' | \
+            jq -c '.[]' /tmp/scenarios.json | \
             while IFS= read -r scenario; do
               NAME=$(echo "$scenario" | jq -r '.name')
               DESC=$(echo "$scenario" | jq -r '.description')
