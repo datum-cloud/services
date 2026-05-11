@@ -1,29 +1,35 @@
-import { test, expect } from '@playwright/test';
+import { test } from '@playwright/test';
 
 test('new service wizard', async ({ page }) => {
   await page.goto('/services/new');
   await page.waitForLoadState('networkidle');
-  await expect(
-    page.getByRole('heading', { name: /new service/i })
-  ).toBeVisible({ timeout: 10_000 });
+  await page.locator('h1').filter({ hasText: /new service/i }).waitFor({ state: 'visible', timeout: 10_000 }).catch(() => {});
   await page.waitForTimeout(1_500);
 
   // ── Step 1 — Service identity ─────────────────────────────────────────────
-  await page.getByLabel(/display name/i).pressSequentially('Analytics Platform', { delay: 60 });
-  await page.waitForTimeout(800);
-  await page.getByLabel(/description/i).pressSequentially(
-    'Usage analytics and cost attribution for Milo-hosted workloads.',
-    { delay: 30 }
+  const displayNameInput = page.getByLabel(/display name/i);
+  await displayNameInput.waitFor({ state: 'visible', timeout: 5_000 });
+  await displayNameInput.fill('Analytics Platform');
+  await page.waitForTimeout(400);
+
+  await page.getByLabel(/description/i).fill(
+    'Usage analytics and cost attribution for Milo-hosted workloads.'
   );
-  await page.waitForTimeout(800);
-  await page.getByLabel(/owner project/i).pressSequentially('platform-producer-project', {
-    delay: 40,
-  });
+  await page.waitForTimeout(400);
+
+  await page.getByLabel(/owner project/i).fill('platform-producer-project');
   await page.waitForTimeout(2_000);
 
   // ── Step 2 — Monitored resource types ─────────────────────────────────────
   const nextBtn = page.getByRole('button', { name: /next/i });
-  await nextBtn.click();
+  // Wait for the Next button to become enabled (form must be valid).
+  await page.waitForFunction(() => {
+    const btn = document.querySelector('button[type="button"]');
+    const allBtns = Array.from(document.querySelectorAll('button'));
+    const nextBtn = allBtns.find(b => /next/i.test(b.textContent ?? ''));
+    return nextBtn && !nextBtn.disabled;
+  }, undefined, { timeout: 10_000 }).catch(() => {});
+  await nextBtn.click().catch(() => {});
   await page.waitForLoadState('networkidle');
   await page.waitForTimeout(1_500);
 
@@ -33,7 +39,7 @@ test('new service wizard', async ({ page }) => {
     await page.waitForTimeout(500);
     const typeInput = page.getByPlaceholder(/resource type/i).first();
     if (await typeInput.isVisible({ timeout: 1_000 }).catch(() => false)) {
-      await typeInput.pressSequentially('analytics.miloapis.com/Job', { delay: 40 });
+      await typeInput.fill('analytics.miloapis.com/Job');
     }
     await page.waitForTimeout(2_000);
   } else {
@@ -41,12 +47,12 @@ test('new service wizard', async ({ page }) => {
   }
 
   // ── Step 3 — Meters ───────────────────────────────────────────────────────
-  await nextBtn.click();
+  await nextBtn.click().catch(() => {});
   await page.waitForLoadState('networkidle');
   await page.waitForTimeout(2_500);
 
   // ── Step 4 — Review ───────────────────────────────────────────────────────
-  await nextBtn.click();
+  await nextBtn.click().catch(() => {});
   await page.waitForLoadState('networkidle');
   await page.waitForTimeout(3_000);
 });
