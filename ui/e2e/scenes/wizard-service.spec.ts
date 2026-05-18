@@ -1,14 +1,15 @@
-import { test } from '@playwright/test';
+import { test, expect } from '../fixtures';
 
 test('new service wizard', async ({ page }) => {
   await page.goto('/services/new');
   await page.waitForLoadState('domcontentloaded');
-  await page.locator('h1').filter({ hasText: /new service/i }).waitFor({ state: 'visible', timeout: 10_000 }).catch(() => {});
+
+  await expect(page.locator('h1').filter({ hasText: /new service/i })).toBeVisible({ timeout: 10_000 });
   await page.waitForTimeout(1_000);
 
   // ── Step 1 — Service identity ─────────────────────────────────────────────
   const displayNameInput = page.getByLabel(/display name/i);
-  await displayNameInput.waitFor({ state: 'visible', timeout: 5_000 }).catch(() => {});
+  await expect(displayNameInput).toBeVisible({ timeout: 5_000 });
   await displayNameInput.fill('Analytics Platform');
   await page.waitForTimeout(300);
 

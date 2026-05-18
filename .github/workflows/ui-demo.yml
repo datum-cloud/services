@@ -125,12 +125,12 @@ jobs:
             echo "=== Recording: $NAME ($SPEC) ==="
             rm -rf ui/test-results
 
-            (cd ui && pnpm exec playwright test "$SPEC" --config playwright.demo.config.ts) || true
+            (cd ui && pnpm exec playwright test "$SPEC" --config playwright.demo.config.ts)
 
             VIDEO=$(find ui/test-results -name "*.webm" 2>/dev/null | head -1)
             if [ -z "$VIDEO" ]; then
               echo "No video captured for $NAME"
-              continue
+              exit 1
             fi
 
             ffmpeg -i "$VIDEO" \

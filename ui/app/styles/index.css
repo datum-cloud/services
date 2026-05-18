@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "@datum-cloud/datum-ui/styles";
 
 @theme {
   --color-midnight-fjord: #0C1D31;
