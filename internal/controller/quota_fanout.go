@@ -217,6 +217,9 @@ func (f *QuotaFanOut) pruneResourceRegistrations(
 ) error {
 	var list quotav1alpha1.ResourceRegistrationList
 	if err := f.Client.List(ctx, &list, client.MatchingLabels{labelManagedBy: labelManagedByValue}); err != nil {
+		if meta.IsNoMatchError(err) {
+			return nil
+		}
 		return fmt.Errorf("list ResourceRegistrations: %w", err)
 	}
 	for i := range list.Items {
@@ -241,6 +244,9 @@ func (f *QuotaFanOut) pruneClaimCreationPolicies(
 ) error {
 	var list quotav1alpha1.ClaimCreationPolicyList
 	if err := f.Client.List(ctx, &list, client.MatchingLabels{labelManagedBy: labelManagedByValue}); err != nil {
+		if meta.IsNoMatchError(err) {
+			return nil
+		}
 		return fmt.Errorf("list ClaimCreationPolicies: %w", err)
 	}
 	for i := range list.Items {
